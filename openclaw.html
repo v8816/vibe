@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang='ru'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1'>
+<title>PythonCamp — полный курс Python</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#1c2330;--line:#2a3444;--txt:#e6edf3;--dim:#8b98a9;--acc:#2ecc71;--acc2:#1f9d55;--warn:#f0b429;--err:#ff6b6b;--mono:Consolas,'JetBrains Mono',monospace}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6}
+header{position:sticky;top:0;z-index:50;background:var(--bg2);border-bottom:1px solid var(--line);padding:10px 18px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:20px;color:var(--acc)}
+.logo span{color:var(--txt)}
+.hbar{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:14px;color:var(--dim)}
+.pbar{width:180px;height:9px;background:var(--bg3);border-radius:5px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .4s}
+#app{display:flex;min-height:calc(100vh - 53px)}
+aside{width:300px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--line);padding:14px 0;overflow-y:auto;height:calc(100vh - 53px);position:sticky;top:53px}
+.mod{padding:12px 18px 6px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);font-weight:700}
+.lesson{padding:9px 18px 9px 30px;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:9px;color:#c3ccd8;border-left:3px solid transparent}
+.lesson:hover{background:var(--bg3)}
+.lesson.active{background:var(--bg3);border-left-color:var(--acc);color:#fff}
+.lesson.done .dot{background:var(--acc)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--line);flex-shrink:0}
+main{flex:1;padding:26px 34px;max-width:1000px}
+h1{font-size:26px;margin-bottom:4px}
+h2{font-size:20px;margin:24px 0 10px;color:var(--acc)}
+h3{font-size:16px;margin:16px 0 8px}
+p{margin:9px 0;color:#cfd8e3}
+ul,ol{margin:9px 0 9px 22px;color:#cfd8e3}
+li{margin:4px 0}
+code.i{background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:var(--mono);font-size:13px;color:#7ee2a8}
+pre{background:#0a0f16;border:1px solid var(--line);border-radius:9px;padding:14px;overflow-x:auto;font-family:var(--mono);font-size:13.5px;margin:12px 0;color:#c9d6e4}
+textarea.ed{width:100%;min-height:210px;background:#0a0f16;color:#c9d6e4;border:1px solid var(--line);border-radius:9px;padding:13px;font-family:var(--mono);font-size:13.5px;resize:vertical;outline:none;line-height:1.55}
+textarea.ed:focus{border-color:var(--acc)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:11px 0}
+button{cursor:pointer;border:none;border-radius:8px;padding:9px 18px;font-size:14px;font-weight:600;font-family:inherit;transition:.15s}
+.b1{background:var(--acc);color:#04150a}
+.b1:hover{background:#3ee07f}
+.b2{background:var(--bg3);color:var(--txt);border:1px solid var(--line)}
+.b2:hover{background:#243044}
+.out{background:#05080c;border:1px solid var(--line);border-radius:9px;padding:13px;font-family:var(--mono);font-size:13.5px;white-space:pre-wrap;min-height:52px;color:#9fb0c3;margin-top:11px}
+.out.ok{border-color:var(--acc);color:#7ee2a8}
+.out.bad{border-color:var(--err);color:#ffb3b3}
+.badge{display:inline-block;padding:3px 11px;border-radius:20px;font-size:12px;font-weight:700;background:var(--bg3);color:var(--dim)}
+.badge.ok{background:rgba(46,204,113,.15);color:var(--acc)}
+.hamb{display:none;background:var(--bg3);color:var(--txt);border:1px solid var(--line);padding:6px 12px;border-radius:8px;font-size:18px}
+.crumb{color:var(--dim);font-size:13px;margin-bottom:2px}
+@media(max-width:860px){aside{position:fixed;left:-310px;z-index:60;transition:left .25s}aside.open{left:0}main{padding:18px}.hamb{display:block}}
+</style>
+</head>
+<body>
+<header>
+<button class='hamb' onclick='document.getElementById(&quot;sidebar&quot;).classList.toggle(&quot;open&quot;)'>&#9776;</button>
+<div class='logo'>Python<span>Camp</span></div>
+<div class='hbar'><span id='cnt'>0 / 0</span><div class='pbar'><i id='pb'></i></div><button class='b2' onclick='resetAll()'>Сброс</button></div>
+</header>
+<div id='app'><aside id='sidebar'></aside><main id='main'></main></div>
+<script src='https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js'></script>
+<script>
+var COURSE=[];
+
+COURSE.push({title:'Модуль 1. Основы Python',lessons:[
+{title:'Введение и первый вывод',theory:"<p>Python — это язык программирования, который читается почти как английский. Программа состоит из строк-инструкций, которые выполняются сверху вниз.</p><p>Самый простой способ что-то показать — функция <code class='i'>print()</code>. Всё, что ты положишь в скобки, появится на экране.</p><pre>print('Привет, мир!')\nprint(42)</pre>",task:'Выведи на экран две строки: сначала Привет, PythonCamp! а затем число 2026.',starter:"print('Привет, PythonCamp!')",check:'Привет, PythonCamp!\n2026',solution:"print('Привет, PythonCamp!')\nprint(2026)"},
+{title:'Переменные',theory:"<p>Переменная — это имя для значения. Ты пишешь <code class='i'>имя = значение</code>, и Python запоминает его.</p><pre>x = 5\nname = 'Ирина'\nprint(name, x)</pre>",task:'Создай переменную city со значением Москва и выведи её на экран.',starter:'city = ',check:'Москва',solution:"city = 'Москва'\nprint(city)"},
+{title:'Типы данных',theory:"<p>Основные типы: целые числа <code class='i'>int</code>, дробные <code class='i'>float</code>, строки <code class='i'>str</code> и логический <code class='i'>bool</code>.</p><pre>a = 10\nprint(type(a))</pre>",task:'Выведи тип числа 10 и тип строки текст, каждый с новой строки.',starter:'print(type(10))',check:"<class 'int'>\n<class 'str'>",solution:"print(type(10))\nprint(type('текст'))"},
+{title:'Ввод данных и f-строки',theory:"<p>f-строка вставляет значения прямо в текст: <code class='i'>f'Привет, {name}!'</code>.</p><pre>name = 'Аня'\nprint(f'Привет, {name}!')</pre>",task:'У тебя есть переменная n = 7. Выведи строку: Число равно 7 используя f-строку.',starter:'n = 7',check:'Число равно 7',solution:"n = 7\nprint(f'Число равно {n}')"},
+{title:'Комментарии',theory:"<p>Комментарий начинается с решётки <code class='i'>#</code> и нужен, чтобы пояснять код. Python его игнорирует.</p>",task:'Напиши комментарий и выведи слово готово.',starter:'# твой комментарий',check:'готово',solution:"# учимся комментировать\nprint('готово')"}
+]});
+
+COURSE.push({title:'Модуль 2. Числа и операции',lessons:[
+{title:'Арифметика',theory:"<p>Питон умеет считать как калькулятор: <code class='i'>+</code>, <code class='i'>-</code>, <code class='i'>*</code>, <code class='i'>/</code>. Целочисленное деление — <code class='i'>//</code>, остаток — <code class='i'>%</code>.</p>",task:'Выведи результат 7 + 3, затем 10 // 3, затем 10 % 3, каждый с новой строки.',starter:'print(7 + 3)',check:'10\n3\n1',solution:'print(7 + 3)\nprint(10 // 3)\nprint(10 % 3)'},
+{title:'Возведение в степень',theory:"<p>Степень записывается двумя звёздочками: <code class='i'>**</code>.</p>",task:'Выведи 2 в степени 10, а затем 3 в степени 4, каждый с новой строки.',starter:'print(2 ** 10)',check:'1024\n81',solution:'print(2 ** 10)\nprint(3 ** 4)'},
+{title:'Округление',theory:"<p>Функция <code class='i'>round()</code> округляет число. Второй аргумент — сколько знаков после запятой оставить.</p>",task:'Округли число 3.14159 до двух знаков и выведи результат.',starter:'print(3.14159)',check:'3.14',solution:'print(round(3.14159, 2))'},
+{title:'Математический модуль',theory:"<p>Модуль math даёт много полезного. Его подключают словом <code class='i'>import</code>.</p>",task:'Подключи math и выведи квадратный корень из 81, затем число пи округлённое до 3 знаков.',starter:'import math',check:'9.0\n3.142',solution:'import math\nprint(math.sqrt(81))\nprint(round(math.pi, 3))'},
+{title:'Сокращённые операции',theory:"<p>Вместо <code class='i'>x = x + 5</code> пишут <code class='i'>x += 5</code>.</p>",task:'Начни с x = 10, прибавь 5 через +=, затем умножь на 2 через *=, выведи результат.',starter:'x = 10',check:'30',solution:'x = 10\nx += 5\nx *= 2\nprint(x)'}
+]});
+
+COURSE.push({title:'Модуль 3. Условия',lessons:[
+{title:'Сравнения',theory:"<p>Результат сравнения — True или False. Операторы: <code class='i'>== != > < >= <=</code>.</p>",task:'Выведи три результата: 5 > 3, 5 == 5 и 2 != 2, каждый с новой строки.',starter:'print(5 > 3)',check:'True\nTrue\nFalse',solution:'print(5 > 3)\nprint(5 == 5)\nprint(2 != 2)'},
+{title:'if и else',theory:"<p>Условие if выполняет блок, только если оно истинно. Отступ обязателен.</p>",task:'Дана переменная n = 15. Если n больше 10 выведи много, иначе мало.',starter:'n = 15',check:'много',solution:"n = 15\nif n > 10:\n    print('много')\nelse:\n    print('мало')"},
+{title:'elif',theory:"<p>Если вариантов больше двух, между if и else ставят elif.</p>",task:'Дана переменная x = 0. Выведи плюс, минус или ноль в зависимости от знака.',starter:'x = 0',check:'ноль',solution:"x = 0\nif x > 0:\n    print('плюс')\nelif x < 0:\n    print('минус')\nelse:\n    print('ноль')"},
+{title:'Логические операторы',theory:"<p>and требует оба условия, or — хотя бы одно, not переворачивает.</p>",task:'Выведи результат True and False, затем True or False, затем not False, каждый с новой строки.',starter:'print(True and False)',check:'False\nTrue\nTrue',solution:'print(True and False)\nprint(True or False)\nprint(not False)'},
+{title:'Вложенные условия',theory:"<p>Одно условие можно вложить в другое, увеличив отступ.</p>",task:'Даны a = 5 и b = 9. Если a положительно и b больше a, выведи ок.',starter:'a = 5\nb = 9',check:'ок',solution:"a = 5\nb = 9\nif a > 0:\n    if b > a:\n        print('ок')"}
+]});
+
+COURSE.push({title:'Модуль 4. Циклы',lessons:[
+{title:'Цикл while',theory:"<p>while повторяет блок, пока условие истинно.</p>",task:'Выведи числа от 1 до 5 через while, каждое с новой строки.',starter:'i = 1',check:'1\n2\n3\n4\n5',solution:'i = 1\nwhile i <= 5:\n    print(i)\n    i += 1'},
+{title:'Цикл for и range',theory:"<p>range(a, b) даёт числа от a до b-1.</p>",task:'Выведи числа от 1 до 5 через for и range, каждое с новой строки.',starter:'for i in range(1, 6):',check:'1\n2\n3\n4\n5',solution:'for i in range(1, 6):\n    print(i)'},
+{title:'Накопление суммы',theory:"<p>Часто в цикле копят результат.</p>",task:'Найди сумму чисел от 1 до 10 с помощью цикла и выведи её.',starter:'s = 0',check:'55',solution:'s = 0\nfor i in range(1, 11):\n    s += i\nprint(s)'},
+{title:'Чётные числа',theory:"<p>Если <code class='i'>i % 2 == 0</code>, число чётное.</p>",task:'Выведи все чётные числа от 2 до 10 включительно, каждое с новой строки.',starter:'for i in range(2, 11, 2):',check:'2\n4\n6\n8\n10',solution:'for i in range(2, 11, 2):\n    print(i)'},
+{title:'break и continue',theory:"<p>break прерывает цикл, continue переходит к следующей итерации.</p>",task:'Выведи числа от 1 до 5, но прерви цикл на числе 4 через break.',starter:'for i in range(1, 6):',check:'1\n2\n3',solution:"for i in range(1, 6):\n    if i == 4:\n        break\n    print(i)"}
+]});
+
+COURSE.push({title:'Модуль 5. Строки',lessons:[
+{title:'Длина и индексы',theory:"<p>len(s) даёт длину, s[0] — первый символ, s[-1] — последний.</p>",task:'Для строки s = Python выведи её длину, затем первый символ, затем последний.',starter:"s = 'Python'",check:'6\nP\nn',solution:"s = 'Python'\nprint(len(s))\nprint(s[0])\nprint(s[-1])"},
+{title:'Срезы',theory:"<p>Срез <code class='i'>s[0:3]</code> берёт первые три символа.</p>",task:'Для строки s = Python выведи первые три символа, затем последние три.',starter:"s = 'Python'",check:'Pyt\nhon',solution:"s = 'Python'\nprint(s[0:3])\nprint(s[3:])"},
+{title:'Верхний и нижний регистр',theory:"<p>upper() — заглавные, lower() — строчные.</p>",task:'Для строки s = Hello выведи её в верхнем регистре, затем в нижнем.',starter:"s = 'Hello'",check:'HELLO\nhello',solution:"s = 'Hello'\nprint(s.upper())\nprint(s.lower())"},
+{title:'Разделение и склейка',theory:"<p>split() режет строку по разделителю на список.</p>",task:'Для строки s = яблоко,банан,груша раздели её по запятой и выведи получившийся список.',starter:"s = 'яблоко,банан,груша'",check:"['яблоко', 'банан', 'груша']",solution:"s = 'яблоко,банан,груша'\nprint(s.split(','))"},
+{title:'Замена и поиск',theory:"<p>replace() заменяет подстроку, in проверяет наличие.</p>",task:'Для строки s = кот и пёс замени кот на тигр и выведи результат.',starter:"s = 'кот и пёс'",check:'тигр и пёс',solution:"s = 'кот и пёс'\nprint(s.replace('кот', 'тигр'))"}
+]});
+
+COURSE.push({title:'Модуль 6. Списки',lessons:[
+{title:'Создание и доступ',theory:"<p>Список — упорядоченный набор в квадратных скобках.</p>",task:'Дан список a = [10, 20, 30]. Выведи его длину, затем первый элемент.',starter:'a = [10, 20, 30]',check:'3\n10',solution:'a = [10, 20, 30]\nprint(len(a))\nprint(a[0])'},
+{title:'Добавление элементов',theory:"<p>append() добавляет элемент в конец списка.</p>",task:'Дан список a = [1, 2]. Добавь в конец число 3 и выведи список.',starter:'a = [1, 2]',check:'[1, 2, 3]',solution:'a = [1, 2]\na.append(3)\nprint(a)'},
+{title:'Перебор списка',theory:"<p>Цикл for идёт прямо по элементам списка.</p>",task:'Перебери список a = [5, 6, 7] и выведи каждый элемент с новой строки.',starter:'a = [5, 6, 7]',check:'5\n6\n7',solution:'a = [5, 6, 7]\nfor x in a:\n    print(x)'},
+{title:'Сумма и максимум',theory:"<p>sum(), min() и max() работают со списками напрямую.</p>",task:'Дан список a = [3, 1, 4]. Выведи его сумму, затем максимум.',starter:'a = [3, 1, 4]',check:'8\n4',solution:'a = [3, 1, 4]\nprint(sum(a))\nprint(max(a))'},
+{title:'Сортировка',theory:"<p>sorted() возвращает новый отсортированный список.</p>",task:'Дан список a = [3, 1, 2]. Выведи его отсортированную версию.',starter:'a = [3, 1, 2]',check:'[1, 2, 3]',solution:'a = [3, 1, 2]\nprint(sorted(a))'}
+]});
+
+COURSE.push({title:'Модуль 7. Словари и кортежи',lessons:[
+{title:'Словарь',theory:"<p>Словарь хранит пары ключ-значение. Доступ по ключу.</p>",task:'Дан словарь d = {\'a\': 1, \'b\': 2}. Выведи значение по ключу b.',starter:"d = {'a': 1, 'b': 2}",check:'2',solution:"d = {'a': 1, 'b': 2}\nprint(d['b'])"},
+{title:'Добавление в словарь',theory:"<p>Новую пару добавляют присваиванием по новому ключу.</p>",task:'Дан словарь d = {\'a\': 1}. Добавь пару b со значением 2 и выведи словарь.',starter:"d = {'a': 1}",check:"{'a': 1, 'b': 2}",solution:"d = {'a': 1}\nd['b'] = 2\nprint(d)"},
+{title:'Перебор словаря',theory:"<p>Метод items() даёт ключ и значение сразу.</p>",task:'Дан словарь d = {\'a\': 1, \'b\': 2}. Перебери его и выведи ключ и значение через пробел.',starter:"d = {'a': 1, 'b': 2}",check:'a 1\nb 2',solution:"d = {'a': 1, 'b': 2}\nfor k, v in d.items():\n    print(k, v)"},
+{title:'Кортеж',theory:"<p>Кортеж похож на список, но неизменяемый, в круглых скобках.</p>",task:'Дан кортеж t = (10, 20, 30). Выведи его второй элемент.',starter:'t = (10, 20, 30)',check:'20',solution:'t = (10, 20, 30)\nprint(t[1])'},
+{title:'Множество',theory:"<p>Множество set хранит только уникальные значения.</p>",task:'Создай множество из списка [1, 2, 2, 3, 3, 3] и выведи количество уникальных элементов.',starter:'a = [1, 2, 2, 3, 3, 3]',check:'3',solution:'a = [1, 2, 2, 3, 3, 3]\ns = set(a)\nprint(len(s))'}
+]});
+
+COURSE.push({title:'Модуль 8. Функции',lessons:[
+{title:'Своя функция',theory:"<p>Функция — блок кода с именем. Объявляют через def.</p>",task:'Напиши функцию hello, которая выводит Привет, и вызови её.',starter:'def hello():',check:'Привет',solution:"def hello():\n    print('Привет')\nhello()"},
+{title:'Параметры',theory:"<p>Функция может принимать значения-параметры.</p>",task:'Напиши функцию square с параметром x, которая выводит x умноженный на x. Вызови её с числом 4.',starter:'def square(x):',check:'16',solution:'def square(x):\n    print(x * x)\nsquare(4)'},
+{title:'Возврат значения',theory:"<p>return возвращает результат из функции.</p>",task:'Напиши функцию add с параметрами a и b, возвращающую их сумму. Выведи add(2, 3).',starter:'def add(a, b):',check:'5',solution:'def add(a, b):\n    return a + b\nprint(add(2, 3))'},
+{title:'Значение по умолчанию',theory:"<p>Параметру можно задать значение по умолчанию.</p>",task:'Напиши функцию power с параметрами x и p=2, возвращающую x в степени p. Выведи power(3), затем power(2, 3).',starter:'def power(x, p=2):',check:'9\n8',solution:'def power(x, p=2):\n    return x ** p\nprint(power(3))\nprint(power(2, 3))'},
+{title:'Рекурсия',theory:"<p>Функция может вызывать саму себя. Нужен базовый случай.</p>",task:'Напиши рекурсивную функцию fact, считающую факториал. Выведи fact(5).',starter:'def fact(n):',check:'120',solution:'def fact(n):\n    if n <= 1:\n        return 1\n    return n * fact(n - 1)\nprint(fact(5))'}
+]});
+
+COURSE.push({title:'Модуль 9. Обработка ошибок',lessons:[
+{title:'try и except',theory:"<p>Опасный код кладут в try, обработку — в except.</p>",task:'Попробуй поделить 10 на 0 в блоке try и при ошибке выведи делить нельзя.',starter:'try:',check:'делить нельзя',solution:"try:\n    print(10 / 0)\nexcept ZeroDivisionError:\n    print('делить нельзя')"},
+{title:'Преобразование в число',theory:"<p>int() превращает строку в число, при ошибке ValueError.</p>",task:'Попробуй преобразовать строку abc в число и при ошибке выведи не число.',starter:"s = 'abc'",check:'не число',solution:"s = 'abc'\ntry:\n    print(int(s))\nexcept ValueError:\n    print('не число')"},
+{title:'finally',theory:"<p>Блок finally выполняется всегда.</p>",task:'В блоке try выведи работа, в блоке finally выведи конец.',starter:'try:',check:'работа\nконец',solution:"try:\n    print('работа')\nfinally:\n    print('конец')"}
+]});
+
+COURSE.push({title:'Модуль 10. Модули',lessons:[
+{title:'Модуль random',theory:"<p>random даёт случайные числа. seed фиксирует результат.</p>",task:'Подключи random, установи seed(1) и выведи random.randint(1, 100).',starter:'import random',check:'18',solution:'import random\nrandom.seed(1)\nprint(random.randint(1, 100))'},
+{title:'Модуль math',theory:"<p>math.floor округляет вниз, math.ceil вверх.</p>",task:'Подключи math и выведи math.floor(3.9), затем math.ceil(3.1).',starter:'import math',check:'3\n4',solution:'import math\nprint(math.floor(3.9))\nprint(math.ceil(3.1))'},
+{title:'Список как аргумент',theory:"<p>Функции можно передавать списки.</p>",task:'Напиши функцию double, возвращающую список, где каждый элемент удвоен. Выведи double([1, 2, 3]).',starter:'def double(a):',check:'[2, 4, 6]',solution:'def double(a):\n    return [x * 2 for x in a]\nprint(double([1, 2, 3]))'}
+]});
+
+COURSE.push({title:'Модуль 11. Практика: циклы',lessons:[
+{title:'Обратный отсчёт',theory:"<p>range умеет идти с шагом -1.</p>",task:'Выведи числа от 5 до 1 в обратном порядке, каждое с новой строки.',starter:'for i in range(5, 0, -1):',check:'5\n4\n3\n2\n1',solution:'for i in range(5, 0, -1):\n    print(i)'},
+{title:'Таблица умножения на 3',theory:"<p>Умножай число на счётчик в цикле.</p>",task:'Выведи результаты 3*1, 3*2, 3*3, 3*4, 3*5, каждый с новой строки.',starter:'for i in range(1, 6):',check:'3\n6\n9\n12\n15',solution:'for i in range(1, 6):\n    print(3 * i)'},
+{title:'Сумма чётных',theory:"<p>Складывай только чётные числа через условие.</p>",task:'Найди сумму чётных чисел от 1 до 20 и выведи её.',starter:'s = 0',check:'110',solution:'s = 0\nfor i in range(1, 21):\n    if i % 2 == 0:\n        s += i\nprint(s)'},
+{title:'Обратный отсчёт до нуля',theory:"<p>Цикл while с уменьшением счётчика.</p>",task:'Выведи числа от 3 до 0 через while, каждое с новой строки.',starter:'i = 3',check:'3\n2\n1\n0',solution:'i = 3\nwhile i >= 0:\n    print(i)\n    i -= 1'},
+{title:'Произведение чисел',theory:"<p>Произведение накапливают так же, как сумму, но умножают.</p>",task:'Найди произведение чисел от 1 до 5 и выведи результат.',starter:'p = 1',check:'120',solution:'p = 1\nfor i in range(1, 6):\n    p *= i\nprint(p)'}
+]});
+
+COURSE.push({title:'Модуль 12. Практика: строки',lessons:[
+{title:'Количество слов',theory:"<p>split() без аргумента режет строку по пробелам.</p>",task:'Раздели строку s = я учу python по пробелам и выведи количество слов.',starter:"s = 'я учу python'",check:'3',solution:"s = 'я учу python'\nprint(len(s.split()))"},
+{title:'Соединение слов',theory:"<p>join() собирает список в строку через разделитель.</p>",task:'Соедини слова из списка a = [\'a\', \'b\', \'c\'] через дефис и выведи результат.',starter:"a = ['a', 'b', 'c']",check:'a-b-c',solution:"a = ['a', 'b', 'c']\nprint('-'.join(a))"},
+{title:'Считаем букву',theory:"<p>Метод count() считает, сколько раз встречается символ.</p>",task:'Посчитай, сколько букв о в строке s = молоко, и выведи число.',starter:"s = 'молоко'",check:'3',solution:"s = 'молоко'\nprint(s.count('о'))"},
+{title:'Первый и последний',theory:"<p>Индекс 0 и -1 дают края строки.</p>",task:'Для строки s = привет выведи её первый и последний символ слитно.',starter:"s = 'привет'",check:'пт',solution:"s = 'привет'\nprint(s[0] + s[-1])"},
+{title:'Обрезка пробелов',theory:"<p>strip() убирает пробелы по краям.</p>",task:'Убери лишние пробелы у строки s = пробел вокруг и выведи длину результата.',starter:"s = '  центр  '",check:'6',solution:"s = '  центр  '\nprint(len(s.strip()))"}
+]});
+
+COURSE.push({title:'Модуль 13. Практика: списки',lessons:[
+{title:'Список квадратов',theory:"<p>Списковое включение строит список из выражения.</p>",task:'Построй список квадратов чисел от 1 до 4 и выведи его.',starter:'a = [x * x for x in range(1, 5)]',check:'[1, 4, 9, 16]',solution:'a = [x * x for x in range(1, 5)]\nprint(a)'},
+{title:'Только положительные',theory:"<p>Условие в включении фильтрует элементы.</p>",task:'Из списка a = [-2, 3, -1, 5] оставь только положительные и выведи их.',starter:'a = [-2, 3, -1, 5]',check:'[3, 5]',solution:'a = [-2, 3, -1, 5]\nprint([x for x in a if x > 0])'},
+{title:'Длина каждого слова',theory:"<p>Можно пройтись по списку строк и взять длины.</p>",task:'Для списка a = [\'кот\', \'слон\', \'я\'] выведи список их длин.',starter:"a = ['кот', 'слон', 'я']",check:'[3, 4, 1]',solution:"a = ['кот', 'слон', 'я']\nprint([len(w) for w in a])"},
+{title:'Разворот списка',theory:"<p>Срез [::-1] переворачивает список.</p>",task:'Дан список a = [1, 2, 3, 4]. Выведи его в обратном порядке.',starter:'a = [1, 2, 3, 4]',check:'[4, 3, 2, 1]',solution:'a = [1, 2, 3, 4]\nprint(a[::-1])'},
+{title:'Уникальные элементы',theory:"<p>set убирает повторы, sorted возвращает порядок.</p>",task:'Из списка a = [3, 1, 3, 2, 1] получи уникальные значения в порядке возрастания и выведи их.',starter:'a = [3, 1, 3, 2, 1]',check:'[1, 2, 3]',solution:'a = [3, 1, 3, 2, 1]\nprint(sorted(set(a)))'}
+]});
+
+COURSE.push({title:'Модуль 14. Практика: задачи',lessons:[
+{title:'Проверка чётности',theory:"<p>Остаток от деления на 2 показывает чётность.</p>",task:'Для числа n = 42 выведи слово чётное, если оно чётное, иначе нечётное.',starter:'n = 42',check:'чётное',solution:"n = 42\nif n % 2 == 0:\n    print('чётное')\nelse:\n    print('нечётное')"},
+{title:'Максимум из трёх',theory:"<p>max() берёт наибольшее из переданных значений.</p>",task:'Для чисел a = 4, b = 9, c = 7 выведи наибольшее.',starter:'a = 4\nb = 9\nc = 7',check:'9',solution:'a = 4\nb = 9\nc = 7\nprint(max(a, b, c))'},
+{title:'Длина строки без пробелов',theory:"<p>replace() убирает символы, len() считает длину.</p>",task:'Для строки s = а б в убери все пробелы и выведи длину результата.',starter:"s = 'а б в'",check:'3',solution:"s = 'а б в'\nprint(len(s.replace(' ', '')))"},
+{title:'Сумма цифр числа',theory:"<p>Число можно превратить в строку и пройтись по символам.</p>",task:'Для числа n = 1234 найди сумму его цифр и выведи её.',starter:'n = 1234',check:'10',solution:'n = 1234\ns = 0\nfor c in str(n):\n    s += int(c)\nprint(s)'},
+{title:'FizzBuzz коротко',theory:"<p>Проверка делимости через остаток.</p>",task:'Для числа n = 15 выведи Fizz, если делится на 3, Buzz если на 5, FizzBuzz если на оба.',starter:'n = 15',check:'FizzBuzz',solution:"n = 15\nif n % 15 == 0:\n    print('FizzBuzz')\nelif n % 3 == 0:\n    print('Fizz')\nelif n % 5 == 0:\n    print('Buzz')"}
+]});
+
+</script>
+<script>
+var curM=-1,curL=-1;var NL=String.fromCharCode(10);function loadProg(){try{return JSON.parse(localStorage.getItem('pythoncamp_prog')||'{}')}catch(e){return{}}}var PROG=loadProg();function saveProg(){localStorage.setItem('pythoncamp_prog',JSON.stringify(PROG))}function k(m,l){return m+'_'+l}function totalLessons(){var t=0;COURSE.forEach(function(m){t+=m.lessons.length});return t}function doneLessons(){var d=0;COURSE.forEach(function(m,mi){m.lessons.forEach(function(l,li){if(PROG[k(mi,li)])d++})});return d}function updateProg(){var t=totalLessons(),d=doneLessons();document.getElementById('cnt').textContent=d+' / '+t;document.getElementById('pb').style.width=(t?(d/t*100):0)+'%'}function renderSidebar(){var sb=document.getElementById('sidebar');sb.innerHTML='';COURSE.forEach(function(mod,mi){var h=document.createElement('div');h.className='mod';h.textContent=mod.title;sb.appendChild(h);mod.lessons.forEach(function(les,li){var el=document.createElement('div');el.className='lesson'+(PROG[k(mi,li)]?' done':'')+((mi===curM&&li===curL)?' active':'');var dot=document.createElement('span');dot.className='dot';el.appendChild(dot);var t=document.createElement('span');t.textContent=les.title;el.appendChild(t);el.onclick=function(){curM=mi;curL=li;renderSidebar();renderLesson();document.getElementById('sidebar').classList.remove('open')};sb.appendChild(el)})})}function renderLesson(){if(curM<0)return;var mod=COURSE[curM],les=mod.lessons[curL],main=document.getElementById('main');main.innerHTML='';var cr=document.createElement('div');cr.className='crumb';cr.textContent=mod.title;main.appendChild(cr);var h1=document.createElement('h1');h1.textContent=les.title;main.appendChild(h1);var th=document.createElement('div');th.innerHTML=les.theory;main.appendChild(th);var h2=document.createElement('h2');h2.textContent='Задание';main.appendChild(h2);var p=document.createElement('p');p.textContent=les.task;main.appendChild(p);var ta=document.createElement('textarea');ta.className='ed';ta.id='ed';ta.value=les.starter||'';main.appendChild(ta);var row=document.createElement('div');row.className='row';var b1=document.createElement('button');b1.className='b1';b1.textContent='Проверить';b1.onclick=function(){checkTask(les)};var b2=document.createElement('button');b2.className='b2';b2.textContent='Запустить';b2.onclick=runOnly;var b3=document.createElement('button');b3.className='b2';b3.textContent='Показать решение';b3.onclick=function(){document.getElementById('ed').value=les.solution};var st=document.createElement('span');st.className='badge';st.id='st';st.textContent=PROG[k(curM,curL)]?'выполнено':'не выполнено';if(PROG[k(curM,curL)])st.className='badge ok';row.appendChild(b1);row.appendChild(b2);row.appendChild(b3);row.appendChild(st);main.appendChild(row);var out=document.createElement('div');out.className='out';out.id='out';out.textContent='Здесь появится результат';main.appendChild(out)}function builtinRead(x){if(Sk.builtinFiles===undefined||Sk.builtinFiles['files'][x]===undefined)throw 'Файл не найден: '+x;return Sk.builtinFiles['files'][x]}function execCode(code,out){Sk.configure({output:function(t){out.push(t)},read:builtinRead,inputfun:function(){return ''},inputfunTakesPrompt:true,__future__:Sk.python3});return Sk.misceval.asyncToPromise(function(){return Sk.importMainWithBody('<stdin>',false,code,true)})}function runCode(code){var out=[];return execCode(code,out).then(function(){return {ok:true,text:out.join('')}},function(e){var msg=(e&&e.toString)?e.toString():String(e);return {ok:false,text:out.join('')+(out.length?NL:'')+msg}})}function runOnly(){var code=document.getElementById('ed').value;var o=document.getElementById('out');o.className='out';o.textContent='Выполняется...';runCode(code).then(function(r){o.textContent=r.text||'(пусто)';o.className=r.ok?'out ok':'out bad'})}function checkTask(les){var code=document.getElementById('ed').value;var o=document.getElementById('out');var st=document.getElementById('st');o.className='out';o.textContent='Проверяется...';runCode(code).then(function(r){if(!r.ok){o.textContent=r.text;o.className='out bad';st.className='badge';st.textContent='ошибка';return}var got=r.text.trim(),want=les.check.trim();if(got===want){o.textContent=r.text+NL+'Верно! Задание выполнено.';o.className='out ok';st.className='badge ok';st.textContent='выполнено';PROG[k(curM,curL)]=1;saveProg();updateProg();renderSidebar()}else{o.textContent=r.text+NL+'Ожидалось:'+NL+want;o.className='out bad';st.className='badge';st.textContent='не верно'}})}function resetAll(){if(!confirm('Сбросить весь прогресс?'))return;PROG={};saveProg();updateProg();renderSidebar();if(curM>=0)renderLesson()}updateProg();renderSidebar();curM=0;curL=0;renderSidebar();renderLesson();
+</script>
+</body>
+</html>
